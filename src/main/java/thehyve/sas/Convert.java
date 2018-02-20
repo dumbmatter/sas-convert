@@ -98,8 +98,6 @@ public class Convert {
     public static void main(String[] args) {
         Options options = new Options();
         options.addOption("h", "help", false, "Help");
-        options.addOption("o", "only-column-names", false, "Only column names");
-        options.addOption("a", "auto-create-csv", false, "Auto create CSV");
         CommandLineParser parser = new DefaultParser();
         try {
             CommandLine cl = parser.parse(options, args);
@@ -111,19 +109,12 @@ public class Convert {
             if (argList.size() < 1) {
                 System.err.printf("Too few parameters.\n\n" + USAGE + "\n");
                 return;
-            } else if (argList.size() > 2) {
-                System.err.printf("Too many parameters.\n\n" + USAGE + "\n");
-                return;
             }
             try {
-                String in_filename = argList.get(0);
-                FileInputStream fin = new FileInputStream(in_filename);
-                OutputStream fout;
-                if (argList.size() > 1) {
-                    String out_filename = argList.get(1);
-                    log.info("Writing to file: {}", out_filename);
-                    fout = new FileOutputStream(out_filename);
-                } else if (cl.hasOption("auto-create-csv")) {
+                for (String in_filename: argList) {
+                    FileInputStream fin = new FileInputStream(in_filename);
+                    OutputStream fout;
+
                     String out_filename;
                     if (in_filename.contains(".")) {
                         out_filename = in_filename.replaceAll("\\.[^.]*$", ".csv");
@@ -132,14 +123,12 @@ public class Convert {
                     }
                     log.info("Writing to file: {}", out_filename);
                     fout = new FileOutputStream(out_filename);
-                } else {
-                    log.info("Writing to stdout.");
-                    fout = System.out;
+
+                    Convert converter = new Convert();
+                    converter.convert(fin, fout, cl.hasOption("only-column-names"));
+                    fin.close();
+                    fout.close();
                 }
-                Convert converter = new Convert();
-                converter.convert(fin, fout, cl.hasOption("only-column-names"));
-                fin.close();
-                fout.close();
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
             } catch (IOException e) {

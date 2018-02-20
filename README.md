@@ -13,19 +13,27 @@ unzip sas-convert-0.3.zip
 ```
 
 ### Usage
-Usage:
+This will create file.csv:
 ```bash
-./sas-convert/sas-convert <file.sas7bdat> [file.csv]
+./sas-convert/sas-convert file.sas7bdat
 ```
 
-By default, the first three lines of output will describe the columns: labels, names, and formats, respecitively. To only output one line of header information containing just column names, use the `--only-column-names` or `-o` option:
+If you have multiple SAS files, you can create a CSV file next to each one.
+
+This will create a.csv and b.csv:
 ```bash
-./sas-convert/sas-convert -o <file.sas7bdat> [file.csv]
+./sas-convert/sas-convert a.sas7bdat b.sas7bdat
 ```
 
-By default, if you don't pass the second argument, the output is sent to stdout. If instead you'd like to save it to an automatically named file based on the name of the input file, the `--auto-create-csv` or `-a` option will save this output to my-filename.csv:
+This will create a.csv and folder/b.csv:
 ```bash
-./sas-convert/sas-convert -a my-filename.sas7bdat
+./sas-convert/sas-convert a.sas7bdat folder/b.sas7bdat
+
+```
+
+This will create one CSV file for each SAS7BDAT file in this folder:
+```bash
+./sas-convert/sas-convert *.sas7bdat
 ```
 
 ### Build and run from source
