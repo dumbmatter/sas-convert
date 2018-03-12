@@ -39,10 +39,10 @@ import com.epam.parso.impl.SasFileReaderImpl;
  */
 public class Convert {
 
-    public static final String USAGE = "Usage: sas-convert <file.sas> [file.csv]\n\nWhen only one filename is supplied, output will be sent to stdout.\n\nOptions:\n\n-o, --only-column-names\n       Only write column names before data rows (default is to write three\n       header lines: labels, names, and formats)\n\n-a, --auto-create-csv\n       Instead of sending output to stdout when only an input filename is\n       provided, this will save it to a file based on the name of the input file\n       (e.g. `sas-convert my-filename.sas7bdat` will produce my-filename.csv).";
+    public static final String USAGE = "Usage: sas-convert [foo.sas7bdat]\n\nYou can supply multiple files, or use a wildcard. CSV files will be created, named the same as the sas7bdat files but with .csv instead of .sas7bdat.";
     private static final Logger log = LoggerFactory.getLogger(Convert.class);
 
-    public void convert(InputStream in, OutputStream out, boolean onlyColumnNames) throws IOException {
+    public void convert(InputStream in, OutputStream out) throws IOException {
         Date start = new Date();
         SasFileReader reader = new SasFileReaderImpl(in);
         CSVWriter writer = new CSVWriter(new OutputStreamWriter(out));
@@ -52,25 +52,11 @@ public class Convert {
         log.info(properties.getRowCount() + " rows.");
         List<Column> columns = reader.getColumns();
         String[] outData = new String[columns.size()];
-        if (!onlyColumnNames) {
-            // Writing column labels
-            for(int i=0; i < columns.size(); i++) {
-                outData[i] = columns.get(i).getLabel();
-            }
-            writer.writeNext(outData);
-        }
         // Writing column names
         for(int i=0; i < columns.size(); i++) {
             outData[i] = columns.get(i).getName();
         }
         writer.writeNext(outData);
-        if (!onlyColumnNames) {
-            // Writing column format
-            for(int i=0; i < columns.size(); i++) {
-                outData[i] = columns.get(i).getFormat();
-            }
-            writer.writeNext(outData);
-        }
 
         try {
             log.info("Writing data...");
@@ -125,7 +111,7 @@ public class Convert {
                     fout = new FileOutputStream(out_filename);
 
                     Convert converter = new Convert();
-                    converter.convert(fin, fout, cl.hasOption("only-column-names"));
+                    converter.convert(fin, fout);
                     fin.close();
                     fout.close();
                 }
